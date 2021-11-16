@@ -57,4 +57,4 @@ uname -a (see if it was rebooted correctly)
 
 11. see the messages
 11a. demsg
-11b. see the messages (see cmpe283-1.png and cmpe283-1-2.png)
+11b. see the messages (see cmpe283-1.jpeg and cmpe283-1-2.jpeg)

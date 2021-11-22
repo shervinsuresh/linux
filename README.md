@@ -73,15 +73,15 @@ question will be recipes that someone can follow to reproduce your development s
     $ cd linux
     $ make -j nproc modules 
     $ sudo bash (so we dont need to make everything sudo)
-    # make INSTALL_MOD_STRIP=1 modules_install && make install
-    # lsmod | grep kvm
-    # rmmod kvm_intel
-    # rmmod kvm
-    # lsmod | grep kvm
-    # modprobe kvm
-    # lsmod | grep kvm
-    # modprobe kvm_intel
-    # lsmod | grep kvm
+    (#) make INSTALL_MOD_STRIP=1 modules_install && make install
+    (#) lsmod | grep kvm
+    (#) rmmod kvm_intel
+    (#) rmmod kvm
+    (#) lsmod | grep kvm
+    (#) modprobe kvm
+    (#) lsmod | grep kvm
+    (#) modprobe kvm_intel
+    (#) lsmod | grep kvm
 3. Creating a vm inside the VM
     sudo apt-get install qemu-kvm libvirt-bin bridge-utils virt-manager
     virsh -c qemu:///system list (should see 0 VMS intially)

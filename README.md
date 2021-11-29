@@ -26,9 +26,10 @@ question will be recipes that someone can follow to reproduce your development s
 more exits performed during certain VM operations? Approximately how many exits does a full VM 
 boot entail?
 
-The number of exits is the opposite of stable and is very sporatic, where there is a huge gap between the occurances of some specific exits and others. Thus there are more exits performed suring certain VM operations. In this VM the total exits are:
+The number of exits is the opposite of stable and is very sporatic, where there is a huge gap between the occurances of some specific exits and others. Thus there are more exits performed suring certain VM operations. In this VM the total exits are: 500K.
 
 4. Of the exit types defined in the SDM, which are the most frequent? Least?
+Of the Exits defined in the SDM, the most frequent is the externel interupt and the least is MOV DR
 
 # Assignment 2 READ ME 
 1. For each member in your team, provide 1 paragraph detailing what parts of the lab that member 

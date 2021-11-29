@@ -1,3 +1,63 @@
+# Assignment 3 READ ME 
+1. For each member in your team, provide 1 paragraph detailing what parts of the lab that member 
+implemented / researched. (You may skip this question if you are doing the lab by yourself).
+I am doing this lab by myself
+
+2. Describe in detail the steps you used to complete the assignment. Consider your reader to be someone 
+skilled in software development but otherwise unfamiliar with the assignment. Good answers to this 
+question will be recipes that someone can follow to reproduce your development steps.
+
+1. update the cloned directory from assignemnt 2 for the updated cpuid.c and vmx.c
+2. in the directory linux  
+    $ cd linux
+    $ sudo apt-get install build-essential kernel-package fakeroot libncurses5-dev libssl-dev ccache bison flex libelf-dev 
+    $ sudo apt-get install qemu-kvm libvirt-bin bridge-utils virt-manager
+    $ sudo uname -a (use the version instead of "linux-version"
+    $ sudo cp /boot/config-"linux-version" ./.config
+    $ sudo make old config
+    $ sudo make 
+    $ make INSTALL_MOD_STRIP=1 modules_install && make install
+    $reboot (to see the changes)
+3. Creating a vm inside the VM
+    virsh -c qemu:///system list (should see 0 VMS intially)
+4. Boot the test VM and check with a user program for CPUID values
+
+3. Comment on the frequency of exits – does the number of exits increase at a stable rate? Or are there 
+more exits performed during certain VM operations? Approximately how many exits does a full VM 
+boot entail?
+
+The number of exits is the opposite of stable and is very sporatic, where there is a huge gap between the occurances of some specific exits and others. Thus there are more exits performed suring certain VM operations. In this VM the total exits are:
+
+4. Of the exit types defined in the SDM, which are the most frequent? Least?
+
+# Assignment 2 READ ME 
+1. For each member in your team, provide 1 paragraph detailing what parts of the lab that member 
+implemented / researched. (You may skip this question if you are doing the lab by yourself).
+I am doing this lab by myself
+
+2. Describe in detail the steps you used to complete the assignment. Consider your reader to be someone 
+skilled in software development but otherwise unfamiliar with the assignment. Good answers to this 
+question will be recipes that someone can follow to reproduce your development steps.
+
+1. update the cloned directory from assignemnt 1 for the updated cpuid.c and vmx.c
+2. in the directory linux  
+    $ cd linux
+    $ make -j nproc modules 
+    $ sudo bash (so we dont need to make everything sudo)
+    $ make INSTALL_MOD_STRIP=1 modules_install && make install
+    $ lsmod | grep kvm
+    $ rmmod kvm_intel
+    $ rmmod kvm
+    $ lsmod | grep kvm
+    $ modprobe kvm
+    $ lsmod | grep kvm
+    $ modprobe kvm_intel
+    $ lsmod | grep kvm
+3. Creating a vm inside the VM
+    sudo apt-get install qemu-kvm libvirt-bin bridge-utils virt-manager
+    virsh -c qemu:///system list (should see 0 VMS intially)
+4. Boot the test VM and check the dmesg in intial VM 
+
 # Assignment 1 READ ME 
 
 1. For each member in your team, provide 1 paragraph detailing what parts of the lab that member 
@@ -59,31 +119,5 @@ uname -a (see if it was rebooted correctly)
 11a. demsg
 11b. see the messages (see cmpe283-1.jpeg and cmpe283-1-2.jpeg)
 
-# Assignment 2 READ ME 
-1. For each member in your team, provide 1 paragraph detailing what parts of the lab that member 
-implemented / researched. (You may skip this question if you are doing the lab by yourself).
-I am doing this lab by myself
 
-2. Describe in detail the steps you used to complete the assignment. Consider your reader to be someone 
-skilled in software development but otherwise unfamiliar with the assignment. Good answers to this 
-question will be recipes that someone can follow to reproduce your development steps.
-
-1. update the cloned directory from assignemnt 1 for the updated cpuid.c and vmx.c
-2. in the directory linux  
-    $ cd linux
-    $ make -j nproc modules 
-    $ sudo bash (so we dont need to make everything sudo)
-    (#) make INSTALL_MOD_STRIP=1 modules_install && make install
-    (#) lsmod | grep kvm
-    (#) rmmod kvm_intel
-    (#) rmmod kvm
-    (#) lsmod | grep kvm
-    (#) modprobe kvm
-    (#) lsmod | grep kvm
-    (#) modprobe kvm_intel
-    (#) lsmod | grep kvm
-3. Creating a vm inside the VM
-    sudo apt-get install qemu-kvm libvirt-bin bridge-utils virt-manager
-    virsh -c qemu:///system list (should see 0 VMS intially)
-4. Boot the test VM and check the dmesg in intial VM 
     

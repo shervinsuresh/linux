@@ -5862,40 +5862,12 @@ void dump_vmcs(struct kvm_vcpu *vcpu)
  * The guest has exited.  See if we can fix it or if we need userspace
  * assistance.
  */
- 
- /* links used:
- bench marking time: https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf
- */
- 
- //setting up rdtsc
- 
- u64 rdtsc_ass2(void)
- {
- 	//need lo and hi for the full value
- 	unsigned hi_reg, lo_reg;
- 	asm volatile ("rdtsc" : "=a" (lo_reg), "=d"(hi_reg));
- 	return ((u64)hi_reg <<32)| lo_reg;
- } 
- 
- 
- u32 total_exits;
- atomic_long_t cycles;
 static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
-		
-	
 	struct vcpu_vmx *vmx = to_vmx(vcpu);
 	union vmx_exit_reason exit_reason = vmx->exit_reason;
 	u32 vectoring_info = vmx->idt_vectoring_info;
 	u16 exit_handler_index;
-	
-	u64 starting, ending;
-	//int temp=0;
-	starting= rdtsc_ass2();
-
-	
-	
-	total_exits++;
 
 	/*
 	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
@@ -6036,12 +6008,8 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 						kvm_vmx_max_exit_handlers);
 	if (!kvm_vmx_exit_handlers[exit_handler_index])
 		goto unexpected_vmexit;
-	
-	ending= rdtsc_ass2();
-	atomic64_fetch_add((ending-starting),&cycles);
-	return kvm_vmx_exit_handlers[exit_handler_index](vcpu);
-	
 
+	return kvm_vmx_exit_handlers[exit_handler_index](vcpu);
 
 unexpected_vmexit:
 	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",

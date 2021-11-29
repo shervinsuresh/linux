@@ -5878,8 +5878,26 @@ void dump_vmcs(struct kvm_vcpu *vcpu)
  } 
  
  
+
  u32 total_exits;
  atomic_long_t cycles;
+
+struct print_data
+{
+	int exit_reason_no;
+	long no_of_exits;
+	long total_CPU_cycles;
+	long min_CPU_cycles;
+	long max_CPU_cycles;
+	long avg_CPU_cycles;
+};
+
+//Appendix C of Intel SDM lists 65 Exit Reasons. Hence, declaring an array of size 65
+struct print_data print_array[65];
+
+int print_i = 0, print_j = 0, stored_return_variable = 0;
+long total_no_of_exits = 0, total_time = 0, start_time = 0, end_time = 0;
+
 static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
 		
@@ -6010,6 +6028,87 @@ static int __vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 			       __func__, vcpu->vcpu_id);
 			vmx->loaded_vmcs->soft_vnmi_blocked = 0;
 		}
+	}
+
+		if (exit_reason < kvm_vmx_max_exit_handlers
+	    && kvm_vmx_exit_handlers[exit_reason]) {
+	//	return kvm_vmx_exit_handlers[exit_reason](vcpu);
+		total_no_of_exits += 1;
+`	
+		/* The header file vmx.h defines all the exit reasons that linux kvm handles
+		However, these do not cover the whole 65 types of VMX exits that are possible.
+		So, to skip these from getting printed let's update the reason no. in the struct 			as -1 which can be checked before printing */ 	
+		print_array[3].exit_reason_no = -1;
+		print_array[4].exit_reason_no = -1;
+		print_array[5].exit_reason_no = -1;
+		print_array[6].exit_reason_no = -1;
+		print_array[11].exit_reason_no = -1;
+		print_array[17].exit_reason_no = -1;
+		print_array[35].exit_reason_no = -1;
+		print_array[38].exit_reason_no = -1;
+		print_array[42].exit_reason_no = -1;
+			
+		print_array[exit_reason].no_of_exits += 1;
+			
+		//The instruction rdtsc() returns the time stamp counter(TSC)
+		start_time = rdtsc();
+
+		stored_return_variable = kvm_vmx_exit_handlers[exit_reason](vcpu);
+	
+		end_time = rdtsc();
+
+		total_time  = total_time + (end_time - start_time);
+
+		//update print_array with total CPU cycles spent, max ,min and avg CPU cycles
+		print_array[exit_reason].total_CPU_cycles += (end_time - start_time);
+
+		if( print_array[exit_reason].min_CPU_cycles > (end_time - start_time ) || print_array[exit_reason].min_CPU_cycles == 0)
+			print_array[exit_reason].min_CPU_cycles = (end_time - start_time);
+
+		if( print_array[exit_reason].max_CPU_cycles < (end_time - start_time) )
+			print_array[exit_reason].max_CPU_cycles = (end_time - start_time);
+					
+		print_array[exit_reason].avg_CPU_cycles = print_array[exit_reason].total_CPU_cycles / print_array[exit_reason].no_of_exits;
+	
+		if( total_no_of_exits % 500 == 0 ) {
+			printk("\n============= VM Exit Stats Begin ==========================\n");
+			printk("\nTotal Amount of Cycles spent processing all exits: %ld\n\n",total_time);
+			for( print_i = 0 ; print_i < 65 ; print_i++) {
+				if( print_array[print_i].exit_reason_no != -1) {
+					print_j = 0;
+				
+			/* trace_print_flags structure is defined in tracepoint_defs.h header file
+		    The header file for trace included in this module is trace_events.h		
+			trace_events.h includes tracepoint.h which includes tracepoint_defs.h
+			   struct trace_print_flags {
+				unsigned long	mask;
+				const char	*name;
+			  };
+			  Exit reason can be obtained from name field by looping through array	
+			*/
+					static const struct trace_print_flags exit_symbols[] = { VMX_EXIT_REASONS };
+			//Looping only through 56 exit types because of the previous logic of skipping 10 the unhandled exit types
+					for(print_j = 0; print_j < 56; print_j++)
+						if(exit_symbols[print_j].mask == print_i)
+							break;
+			// Print details of only those exits that have an exit count of more than 0 to print only the useful details
+					if ( print_array[print_i].no_of_exits > 0 ) {
+						printk("Exit Type: %s\n", exit_symbols[print_j].name);
+						
+						printk("Total-exits: %ld, Min-Cycles: %ld, Max-Cycles: %ld, Avg-Cycles: %ld", print_array[print_i].no_of_exits, print_array[print_i].min_CPU_cycles, print_array[print_i].max_CPU_cycles, print_array[print_i].avg_CPU_cycles);
+					}
+				}
+			}				
+			printk("\n============= VM Exit Stats End ============================\n");
+ 		}
+		return stored_return_variable;
+	}
+
+else {
+		vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",
+				exit_reason);
+		kvm_queue_exception(vcpu, UD_VECTOR);
+		return 1;
 	}
 
 	if (exit_fastpath != EXIT_FASTPATH_NONE)
